@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Avm.Forms;
@@ -14,15 +15,22 @@ namespace Avm
         [STAThread]
         private static void Main()
         {
-            AppDomain.CurrentDomain.UnhandledException += NBug.Handler.UnhandledException;
-            Application.ThreadException += NBug.Handler.ThreadException;
-            TaskScheduler.UnobservedTaskException += NBug.Handler.UnobservedTaskException;
+            using (Mutex mutex = new Mutex(false, "AUTOMATIC_VOLUME_MIXER"))
+            {
+                if (!mutex.WaitOne(0, false))
+                    return;
 
-            //NBug.Settings.
+                AppDomain.CurrentDomain.UnhandledException += NBug.Handler.UnhandledException;
+                Application.ThreadException += NBug.Handler.ThreadException;
+                TaskScheduler.UnobservedTaskException += NBug.Handler.UnobservedTaskException;
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainApplication());
+                //NBug.Settings.
+
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                GC.Collect();
+                Application.Run(new MainApplication());
+            }
         }
 
         private sealed class MainApplication : ApplicationContext
