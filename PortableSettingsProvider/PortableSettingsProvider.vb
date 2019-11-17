@@ -60,9 +60,10 @@ Public Class PortableSettingsProvider
         'Iterate through the settings to be retrieved
         For Each setting As SettingsProperty In props
 
-            Dim value As SettingsPropertyValue = New SettingsPropertyValue(setting)
-            value.IsDirty = False
-            value.SerializedValue = GetValue(setting)
+            Dim value As SettingsPropertyValue = New SettingsPropertyValue(setting) With {
+                .IsDirty = False,
+                .SerializedValue = GetValue(setting)
+            }
             values.Add(value)
         Next
         Return values
